@@ -1,7 +1,7 @@
 import os
 import pytest
 from fastapi.testclient import TestClient
-from app import app
+from thumbnail.api.app import app
 
 os.environ['S3_BUCKET'] = 'test-bucket'
 os.environ['API_KEY'] = 'test_api_key'

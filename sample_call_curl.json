@@ -1,0 +1,5 @@
+curl -X POST "http://localhost:8000/upload/?width=200&height=200" \
+-H "Content-Type: multipart/form-data" \
+-H "X-API-KEY: your_api_key" \
+-F "files=@./tests/test_image.jpg" \
+-F "files=@./tests/test_image_2.jpg"
