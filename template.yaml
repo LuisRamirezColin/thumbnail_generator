@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: FastAPI Thumbnail Generator using AWS Lambda and Docker
+
+Resources:
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageUri: "440744260607.dkr.ecr.us-east-1.amazonaws.com/thumbnail-fastapi-app:latest"
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole  # Ensure these are on the same level
+
+  FastApiECRRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: thumbnail-fastapi-app
+
+Outputs:
+  FastApiFunction:
+    Description: "FastAPI Lambda Function ARN"
+    Value: !GetAtt FastApiFunction.Arn

@@ -1,0 +1,20 @@
+version = 0.1
+
+[default]
+profile = "default"
+region = "us-east-1"
+
+[default.deploy]
+stack_name = "thumbnail-fastapi-app"
+s3_bucket = "stori-bucket-larc"
+s3_prefix = "stori-larc-prefix"
+
+[default.deploy.parameters]
+stack_name = "thumbnail-fastapi-app"
+resolve_s3 = true
+s3_prefix = "thumbnail-fastapi-app"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = []
