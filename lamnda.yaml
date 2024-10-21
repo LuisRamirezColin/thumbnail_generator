@@ -13,22 +13,22 @@ Resources:
       Timeout: 10
       Policies:
         - AWSLambdaBasicExecutionRole
-        # - Policy:
-        #     PolicyName: ThumbnailPolicy
-        #     PolicyDocument:
-        #       Version: '2012-10-17'
-        #       Statement:
-        #         - Effect: Allow
-        #           Action:
-        #             - s3:GetObject
-        #             - s3:PutObject
-        #           Resource: arn:aws:s3:::stori-bucket-larc/*
+        - Policy:
+            PolicyName: ThumbnailPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:GetObject
+                    - s3:PutObject
+                  Resource: arn:aws:s3:::stori-bucket-larc/*
       Environment:
         Variables:
           APP_MODE: production
           DEBUG: "false"
           S3_BUCKET: stori-bucket-larc
-          API_KEY: my_stori_api_key
+          API_KEY: my_stori_api_key  # esto debe ser bajo secret manager!!
       Events:
         UploadApi:
           Type: Api
@@ -53,10 +53,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      # Cors:
-      #   AllowMethods: "'OPTIONS,POST,GET'"  # Comillas simples para cadenas
-      #   AllowHeaders: "'Content-Type,X-API-KEY'"  # Comillas simples para cadenas
-      #   AllowOrigins: "'*'"  # Comillas simples para cadenas
+      Cors:
+        AllowMethods: "'OPTIONS,POST,GET'"  # 
+        AllowHeaders: "'Content-Type,X-API-KEY'"  # 
+        AllowOrigins: "'*'"  # 
 
 Outputs:
   FastApiFunction:
