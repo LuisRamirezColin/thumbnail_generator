@@ -1,0 +1,45 @@
+# Python Bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Poetry
+poetry.lock
+
+# Distribution / Packaging
+.Python
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Pytest
+.cache
+*.cover
+coverage.xml
+*.log
+nosetests.xml
+test-results/
+*.tmp
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
