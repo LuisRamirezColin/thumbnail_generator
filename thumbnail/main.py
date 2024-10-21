@@ -1,14 +1,17 @@
 import os
 import uvicorn
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from thumbnail.api.health.router import health_router
+from thumbnail.api.secure.router import secure_router
 from contextlib import asynccontextmanager
-from logging import getLogger
 from mangum import Mangum
 from thumbnail.api.ops.router import images_router
 
-logger = getLogger()
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,7 +28,8 @@ app = FastAPI(
 )
 
 app.include_router(images_router, prefix='/upload')
-app.include_router(health_router, prefix="")
+app.include_router(secure_router, prefix="/secure")
+app.include_router(health_router, prefix="/health")
 
 origins = ["*"]
 

@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: FastAPI Thumbnail Generator using AWS Lambda and Docker
 
@@ -7,18 +7,58 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: "440744260607.dkr.ecr.us-east-1.amazonaws.com/thumbnail-fastapi-app:latest"
+      ImageUri: 440744260607.dkr.ecr.us-east-1.amazonaws.com/thumbnail-fastapi-app:latest
+      Handler: thumbnail.main.handler  # Ensure this is correct
       MemorySize: 128
       Timeout: 10
       Policies:
-        - AWSLambdaBasicExecutionRole  # Ensure these are on the same level
+        - AWSLambdaBasicExecutionRole
+        # - Policy:
+        #     PolicyName: ThumbnailPolicy
+        #     PolicyDocument:
+        #       Version: '2012-10-17'
+        #       Statement:
+        #         - Effect: Allow
+        #           Action:
+        #             - s3:GetObject
+        #             - s3:PutObject
+        #           Resource: arn:aws:s3:::stori-bucket-larc/*
+      Environment:
+        Variables:
+          APP_MODE: production
+          DEBUG: "false"
+          S3_BUCKET: stori-bucket-larc
+          API_KEY: my_stori_api_key
+      Events:
+        UploadApi:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: POST
+            RestApiId: !Ref ApiGateway
+        HealthCheckApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET
+            RestApiId: !Ref ApiGateway
+        SecureDataApi:
+          Type: Api
+          Properties:
+            Path: /secure-data
+            Method: GET
+            RestApiId: !Ref ApiGateway
 
-  FastApiECRRepo:
-    Type: AWS::ECR::Repository
+  ApiGateway:
+    Type: AWS::Serverless::Api
     Properties:
-      RepositoryName: thumbnail-fastapi-app
+      StageName: Prod
+      # Cors:
+      #   AllowMethods: "'OPTIONS,POST,GET'"  # Comillas simples para cadenas
+      #   AllowHeaders: "'Content-Type,X-API-KEY'"  # Comillas simples para cadenas
+      #   AllowOrigins: "'*'"  # Comillas simples para cadenas
 
 Outputs:
   FastApiFunction:
-    Description: "FastAPI Lambda Function ARN"
+    Description: FastAPI Lambda Function ARN
     Value: !GetAtt FastApiFunction.Arn
