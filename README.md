@@ -33,7 +33,7 @@ The application is structured as follows:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/thumbnail-generator.git
+git clone https://github.com/LuisRamirezColin/thumbnail-generator.git
 cd thumbnail-generator
 ```
 Create a virtualenvironment
