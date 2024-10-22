@@ -44,14 +44,15 @@ def is_valid_image(file: UploadFile) -> bool:
     return (file.content_type in VALID_IMAGE_MIME_TYPES) and \
            (os.path.splitext(file.filename)[1].lower() in VALID_IMAGE_EXTENSIONS)
 
-# Function to generate a thumbnail
-def generate_thumbnail(image_file, size=(128, 128)):
+def generate_thumbnail(image_file: UploadFile, size=(128, 128)):
     try:
-        img = Image.open(image_file)
+        image_data = image_file.read()  # Read the file content
+        img = Image.open(BytesIO(image_data))  # Create image from bytes
         img.thumbnail(size)
+        
         thumbnail_io = BytesIO()
         img.save(thumbnail_io, format='JPEG')
-        thumbnail_io.seek(0)
+        thumbnail_io.seek(0)  # Reset the pointer to the beginning
         return thumbnail_io
     except Exception as e:
         logger.error(f"Error generating thumbnail: {str(e)}")
@@ -97,6 +98,7 @@ async def process_file(file: UploadFile, bucket_name: str = None, width: int = 1
         return {"filename": file.filename, "error": "Invalid file type. Please upload a valid image."}
     
     try:
+        logger.info(f"Received file: {file.filename}, Content-Type: {file.content_type}")
         thumbnail_io = generate_thumbnail(file.file, size=(width, height))
 
         if STORAGE_MODE == 'development':
