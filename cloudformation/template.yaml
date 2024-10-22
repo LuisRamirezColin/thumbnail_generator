@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: FastAPI Thumbnail Generator using AWS Lambda and API Gateway
+Resources:
+  StoriBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: stori-bucket-larc
+    Metadata:
+      SamResourceId: StoriBucket
+
+  StoriBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StoriBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: 
+              AWS: 
+                - Fn::GetAtt: [LambdaExecutionRole, Arn]  # Allow the Lambda function to access the bucket
+            Action:
+              - s3:PutObject
+              - s3:GetObject
+            Resource:
+              - Fn::Sub: arn:aws:s3:::stori-bucket-larc/*  # Ensure this matches your bucket name
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ThumbnailPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                Resource:
+                  Fn::Sub: ${StoriBucket.Arn}/*
+    Metadata:
+      SamResourceId: LambdaExecutionRole
+
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: FastApiFunction
+      PackageType: Image
+      ImageUri: 440744260607.dkr.ecr.us-east-1.amazonaws.com/thumbnail-fastapi-app:latest
+      MemorySize: 512
+      Timeout: 60
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Environment:
+        Variables:
+          APP_MODE: production
+          STORAGE_MODE: production
+          DEBUG: 'false'
+          S3_BUCKET:
+            Ref: StoriBucket
+          API_KEY: my_stori_api_key
+    Metadata:
+      SamResourceId: FastApiFunction
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: '''POST, OPTIONS'''
+        AllowHeaders: '''Content-Type,X-API-KEY'''
+        AllowOrigin: '''*'''
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title:
+            Ref: AWS::StackName
+        paths:
+          /upload/images:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FastApiFunction.Arn}/invocations
+    Metadata:
+      SamResourceId: ApiGateway
+
+  LambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: FastApiFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/POST/upload/images
+    Metadata:
+      SamResourceId: LambdaApiGatewayInvoke
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL for Prod stage
+    Value:
+      Fn::Sub: https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+  FastApiFunctionArn:
+    Description: FastAPI Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+        - FastApiFunction
+        - Arn

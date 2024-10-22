@@ -75,7 +75,7 @@ Tag Image
 
 Push Image registry
 ```bash
-   docker push 440744260607.dkr.ecr.us-east-1.amazonaws.com/thumbnail-fastapi-app:latest.
+   docker push 440744260607.dkr.ecr.us-east-1.amazonaws.com/thumbnail-fastapi-app:latest
 ```
 
 ### 4. Deploy to AWS
@@ -128,7 +128,7 @@ curl -X POST "http://localhost:8000/upload/images" \
 
 ### PROD REQUEST 
 ```bash
-curl -X POST "https://g6b01c0hd2.execute-api.us-east-1.amazonaws.com/Prodhttp://localhost:8000/upload/images" \
+curl -X POST "https://uh3e0r8gr7.execute-api.us-east-1.amazonaws.com/Prod/upload/images" \
 -H "Content-Type: multipart/form-data" \
 -H "X-API-KEY: my_stori_api_key" \
 -F "file=@./tests/test_image.jpg"

@@ -1,0 +1,1 @@
+curl -X POST "https://0mcdd5t4kj.execute-api.us-east-1.amazonaws.com/Prod/upload/images" -H "Content-Type: multipart/form-data" -H "X-API-KEY: my_stori_api_key" -F "file=@./your_path/sample.jpg"
